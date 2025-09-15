@@ -11,7 +11,8 @@ import SwiftUI
 struct LichVanNienApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().frame(width: 800, height: 800) // Kích thước cố định
         }
+        .windowResizability(.contentSize)
     }
 }
