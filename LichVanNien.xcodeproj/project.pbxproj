@@ -187,11 +187,12 @@
 				};
 			};
 			buildConfigurationList = 4D4C6F3B2E77A2FB00AFD112 /* Build configuration list for PBXProject "LichVanNien" */;
-			developmentRegion = en;
+			developmentRegion = vi;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				vi,
 			);
 			mainGroup = 4D4C6F372E77A2FB00AFD112;
 			minimizedProjectReferenceProxies = 1;

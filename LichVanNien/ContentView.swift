@@ -150,6 +150,7 @@ struct ContentView: View {
                         isWeekend: isWeekend(date),
                         solarDay: dayComponent(date),
                         lunarDay: lunarDayComponent(date),
+                        lunarMonth: lunarMonthComponent(date),
                         hasImportantEvent: hasImportantEvent(date),
                         hasNormalEvent: hasNormalEvent(date)
                     )
@@ -217,7 +218,7 @@ struct ContentView: View {
 
                     let lunar = lunarComponents(selectedDate)
 
-                    Text("Tháng âm \(String(lunar.month))\(lunar.isLeap ? " (nhuận)" : ""), năm âm \(String(lunar.year))")
+                    Text("Tháng \(String(lunar.month))\(lunar.isLeap ? " (nhuận)" : ""), năm  \(canChiForYear(selectedDate))")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(AppColors.textSecondary)
 
@@ -384,6 +385,10 @@ struct ContentView: View {
     private func lunarDayComponent(_ date: Date) -> Int {
         lunarComponents(date).day
     }
+    
+    private func lunarMonthComponent(_ date: Date) -> Int {
+        lunarComponents(date).month
+    }
 
     private func lunarComponents(_ date: Date) -> (day: Int, month: Int, year: Int, isLeap: Bool) {
         var lunarCal = Calendar(identifier: .chinese)
@@ -485,6 +490,24 @@ struct ContentView: View {
         let canStr = can[(canIndex + 10) % 10]
         return "\(canStr) \(chiStr)"
     }
+    
+    func canChiForYear(_ date: Date) -> String {
+        let can = ["Giáp", "Ất", "Bính", "Đinh", "Mậu",
+                   "Kỷ", "Canh", "Tân", "Nhâm", "Quý"]
+        let chi = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ",
+                   "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"]
+
+        // Dùng lịch dương để lấy năm
+        let year = Calendar(identifier: .gregorian).component(.year, from: date)
+
+        // Offset chuẩn: 1984 là Giáp Tý
+        let canIndex = (year + 6) % 10
+        let chiIndex = (year + 8) % 12
+
+        return "\(can[canIndex]) \(chi[chiIndex])"
+    }
+
+
 
     private func hoangDaoHours(for date: Date) -> [String] {
         // Simplified mapping by day chi index
@@ -617,6 +640,7 @@ private struct DayCell: View {
     let isWeekend: Bool
     let solarDay: Int
     let lunarDay: Int
+    let lunarMonth: Int
     let hasImportantEvent: Bool
     let hasNormalEvent: Bool
 
@@ -641,7 +665,9 @@ private struct DayCell: View {
 
                 HStack {
                     Spacer()
-                    Text("\(lunarDay)")
+                    Text(lunarDay == 1
+                        ? "\(lunarDay)/\(lunarMonth)"
+                        : "\(lunarDay)")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundColor(lunarTextColor)
                 }
