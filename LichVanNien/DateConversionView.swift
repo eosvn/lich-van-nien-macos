@@ -1,6 +1,11 @@
 import SwiftUI
 
-struct DateConversionView: View {
+struct DateConversionView: View, Equatable {
+    static func == (lhs: DateConversionView, rhs: DateConversionView) -> Bool {
+        // Re-render only when bindings point to different instances (not typical) — always false to avoid identity-based diffing
+        false
+    }
+
     @Binding var selectedDate: Date
     @Binding var displayedMonth: Int
     @Binding var displayedYear: Int

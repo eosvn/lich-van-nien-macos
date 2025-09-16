@@ -38,19 +38,27 @@ struct ContentView: View {
             AppColors.background.ignoresSafeArea()
             VStack(spacing: 16) {
                 topNavigationBar
-                if selectedTabIndex == 0 {
-                    monthYearPickerBar
-                    calendarGrid
-                    detailSection
-                } else {
-                    DateConversionView(
-                        selectedDate: $selectedDate,
-                        displayedMonth: $displayedMonth,
-                        displayedYear: $displayedYear
-                    )
+                Group {
+                    if selectedTabIndex == 0 {
+                        LazyVStack(spacing: 16) {
+                            monthYearPickerBar
+                            calendarGrid
+                            detailSection
+                        }
+                    } else {
+                        DateConversionView(
+                            selectedDate: $selectedDate,
+                            displayedMonth: $displayedMonth,
+                            displayedYear: $displayedYear
+                        )
+                    }
+                }
+                .transaction { txn in
+                    txn.disablesAnimations = false
                 }
             }
             .padding(20)
+            .animation(.easeInOut(duration: 0.2), value: selectedTabIndex)
         }
         .environment(\.locale, viLocale)
         .onAppear { updateQuote(initial: true) }
