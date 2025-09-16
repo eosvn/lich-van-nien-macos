@@ -67,7 +67,6 @@ struct ContentView: View {
                         Text("Đổi ngày").tag(1)
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 220)
                 }
 
                 Spacer()
@@ -175,7 +174,7 @@ struct ContentView: View {
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(AppColors.textSecondary)
 
-                    Text(gregorianMonthYear(selectedDate))
+                    Text(CalendarUtils.gregorianMonthYear(selectedDate))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(AppColors.textSecondary)
 
@@ -184,7 +183,7 @@ struct ContentView: View {
                         .foregroundColor(AppColors.textPrimary)
                         .padding(.top, 2)
 
-                    Text(weekdayString(selectedDate))
+                    Text(CalendarUtils.weekdayString(selectedDate))
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(AppColors.textPrimary)
 
@@ -216,9 +215,9 @@ struct ContentView: View {
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(AppColors.textSecondary)
 
-                    let lunar = lunarComponents(selectedDate)
+                    let lunar = CalendarUtils.lunarComponents(selectedDate)
 
-                    Text("Tháng \(String(lunar.month))\(lunar.isLeap ? " (nhuận)" : ""), năm  \(canChiForYear(selectedDate))")
+                    Text("Tháng \(String(lunar.month))\(lunar.isLeap ? " (nhuận)" : ""), năm  \(CalendarUtils.canChiForYear(selectedDate))")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(AppColors.textSecondary)
 
@@ -228,11 +227,11 @@ struct ContentView: View {
                         .padding(.top, 2)
 
                     HStack(spacing: 12) {
-                        Text("Ngày \(canChiForDay(selectedDate))")
+                        Text("Ngày \(CalendarUtils.canChiForDay(selectedDate))")
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(AppColors.textPrimary)
                         Spacer()
-                        Text("Tháng \(canChiForMonth(selectedDate))")
+                        Text("Tháng \(CalendarUtils.canChiForMonth(selectedDate))")
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(AppColors.textPrimary)
                     }
@@ -241,7 +240,7 @@ struct ContentView: View {
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(AppColors.textSecondary)
 
-                    let hours = hoangDaoHours(for: selectedDate)
+                    let hours = CalendarUtils.hoangDaoHours(for: selectedDate)
                     WrapGrid(items: hours, spacing: 4) { hour in
                         Text(hour)
                             .font(.system(size: 11, weight: .regular))
@@ -265,7 +264,7 @@ struct ContentView: View {
                 .background(HeightReader())
 
             }
-            .frame(maxWidth: 980)
+            .frame(maxWidth: 760)
             .onPreferenceChange(CardHeightKey.self) { newHeight in
                 // LẤY MAX HEIGHT từ 2 card (do PreferenceKey reduce = max)
                 // rồi lưu vào @State để 2 card .frame(height:) dùng chung
@@ -273,6 +272,7 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, alignment: .center)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
 
@@ -593,44 +593,6 @@ struct ContentView: View {
 private var detailCardsHeight: CGFloat = 0           // CHO PHÉP GÁN (không còn lỗi 'let constant')
 private let detailCardsHeightMin: CGFloat = 180             // chiều cao tối thiểu mong muốn
 
-// MARK: - Date Conversion View (Placeholder)
-private struct DateConversionView: View {
-    @Binding var selectedDate: Date
-    @Binding var displayedMonth: Int
-    @Binding var displayedYear: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Đổi ngày")
-                .font(.system(size: 20, weight: .bold))
-                .foregroundColor(AppColors.textPrimary)
-
-            Text("Chọn ngày/tháng/năm để chuyển đổi giữa Dương lịch và Âm lịch.")
-                .font(.system(size: 13))
-                .foregroundColor(AppColors.textSecondary)
-
-            HStack(spacing: 12) {
-                DatePicker("Chọn ngày", selection: $selectedDate, displayedComponents: .date)
-                    .datePickerStyle(.field)
-                    .labelsHidden()
-
-                Spacer()
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(AppColors.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(AppColors.divider, lineWidth: 1)
-            )
-
-            Spacer()
-        }
-    }
-}
-
 // MARK: - Day Cell
 private struct DayCell: View {
     let date: Date
@@ -707,19 +669,6 @@ private struct DayCell: View {
 }
 
 // MARK: - Utilities
-private struct AppColors {
-    static let background = Color(red: 0.1176, green: 0.1176, blue: 0.1176) // #1e1e1e
-    static let surface = Color(red: 0.16, green: 0.16, blue: 0.18)
-    static let divider = Color(red: 0.26, green: 0.26, blue: 0.28)
-    static let textPrimary = Color(red: 0.94, green: 0.94, blue: 0.94) // #f0f0f0
-    static let textSecondary = Color(red: 0.63, green: 0.63, blue: 0.63) // #a0a0a0
-    static let textTertiary = Color(red: 0.48, green: 0.48, blue: 0.48)
-    static let weekend = Color(red: 1.0, green: 0.58, blue: 0.0) // #ff9500
-    static let selectedBackground = Color(red: 0.0, green: 0.376, blue: 1.0) // #0060ff
-    static let eventImportant = Color(red: 1.0, green: 0.23, blue: 0.19)
-    static let eventNormal = Color(red: 0.62, green: 0.62, blue: 0.62)
-}
-
 private struct IconButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -744,47 +693,7 @@ private struct PrimaryTextButtonStyle: ButtonStyle {
     }
 }
 
-// Simple wrap grid for Hoàng Đạo chips
-private struct WrapGrid<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
-    let items: Data
-    let spacing: CGFloat
-    let content: (Data.Element) -> Content
-
-    init(items: Data, spacing: CGFloat = 8, @ViewBuilder content: @escaping (Data.Element) -> Content) {
-        self.items = items
-        self.spacing = spacing
-        self.content = content
-    }
-
-    var body: some View {
-        GeometryReader { proxy in
-            let width = proxy.size.width
-            var currentX: CGFloat = 0
-            var currentY: CGFloat = 0
-
-            ZStack(alignment: .topLeading) {
-                ForEach(Array(items), id: \.self) { item in
-                    content(item)
-                        .alignmentGuide(.leading) { d in
-                            if (abs(currentX - d.width) > width) {
-                                currentX = 0
-                                currentY -= d.height + spacing
-                            }
-                            let result = currentX
-                            if item == items.last { currentX = 0 } else { currentX -= d.width + spacing }
-                            return result
-                        }
-                        .alignmentGuide(.top) { _ in
-                            let result = currentY
-                            if item == items.last { currentY = 0 }
-                            return result
-                        }
-                }
-            }
-        }
-        .frame(minHeight: 20)
-    }
-}
+// WrapGrid now provided by CommonUI.swift
 
 #Preview {
     ContentView()
